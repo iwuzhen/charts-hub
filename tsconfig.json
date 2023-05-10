@@ -13,6 +13,7 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "allowJs": true,
+    "noEmit": true,
     "forceConsistentCasingInFileNames": true,
     "types": [
       "vitest",
@@ -25,7 +26,8 @@
       "unplugin-vue-macros/macros-global"
     ],
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   },
   "vueCompilerOptions": {
@@ -34,5 +36,5 @@
       "@vue-macros/volar/define-slots"
     ]
   },
-  "exclude": ["dist", "node_modules", "cypress"]
+  "exclude": ["dist", "node_modules", "cypress", "lib"]
 }

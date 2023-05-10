@@ -5,9 +5,11 @@ import App from './App.vue'
 import type { UserModule } from './types'
 import generatedRoutes from '~pages'
 
-import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import 'uno.css'
+// import '@unocss/reset/tailwind.css'
+// import '@/../lib/vform/designer.style.css' // 引入VForm3样式
+// import '../lib/vform/designer.style.css' // 引入VForm3样式
 
 const routes = setupLayouts(generatedRoutes)
 

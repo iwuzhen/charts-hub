@@ -16,20 +16,53 @@ import Unocss from 'unocss/vite'
 import Shiki from 'markdown-it-shiki'
 import VueMacros from 'unplugin-vue-macros/vite'
 import WebfontDownload from 'vite-plugin-webfont-dl'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { cdn } from 'vite-plugin-cdn2'
 
 export default defineConfig({
+  build: {
+    sourcemap: false, // 是否生成源map
+    commonjsOptions: {
+      include: /node_modules|lib/,
+    },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // 生产环境时移除console
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          tool: ['lodash', 'alova', '@alova/scene-vue'],
+          echarts: ['vue3-echarts'],
+          vue: ['vue', 'vue-router', 'pinia', 'axios'],
+          editor: ['codemirror', 'vue-codemirror6', '@codemirror/lang-javascript'],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,
+      // '@': `${path.resolve(__dirname, 'src')}`,
+      '@': path.resolve(__dirname, 'src'),
     },
   },
-
+  optimizeDeps: {
+    include: [
+      '@/../lib/vform/designer.umd.js',
+      // '@/../lib/vform/render.umd.js',
+    ], // 此处路径必须跟main.js中import路径完全一致！
+  },
   plugins: [
     VueMacros({
       plugins: {
         vue: Vue({
           include: [/\.vue$/, /\.md$/],
-          reactivityTransform: true,
+          reactivityTransform: path.resolve(__dirname, 'src'),
         }),
       },
     }),
@@ -58,6 +91,7 @@ export default defineConfig({
         'src/stores',
       ],
       vueTemplate: true,
+      resolvers: [ElementPlusResolver()],
     }),
 
     // https://github.com/antfu/unplugin-vue-components
@@ -67,6 +101,7 @@ export default defineConfig({
       // allow auto import and register components used in markdown
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
       dts: 'src/components.d.ts',
+      resolvers: [ElementPlusResolver()],
     }),
 
     // https://github.com/antfu/unocss
@@ -101,8 +136,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
       manifest: {
-        name: 'Vitesse',
-        short_name: 'Vitesse',
+        name: 'Knogen',
+        short_name: 'Knogen',
         theme_color: '#ffffff',
         icons: [
           {
@@ -144,6 +179,21 @@ export default defineConfig({
 
     // https://github.com/feat-agency/vite-plugin-webfont-dl
     WebfontDownload(),
+
+    cdn({
+      isProduction: true,
+      modules: [
+        // {
+        //   name: 'axios',
+        //   global: 'axios',
+        //   spare: [
+        //     'https://cdn.staticfile.org/axios/1.3.4/axios.min.js',
+        //   ],
+        // },
+      ],
+      preset: false,
+      logInfo: 'info',
+    }),
   ],
 
   // https://github.com/vitest-dev/vitest
@@ -167,6 +217,6 @@ export default defineConfig({
 
   ssr: {
     // TODO: workaround until they support native ESM
-    noExternal: ['workbox-window', /vue-i18n/],
+    noExternal: ['workbox-window', /vue-i18n/, 'element-plus', '@form-create'],
   },
 })
